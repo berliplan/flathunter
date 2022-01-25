@@ -7,6 +7,7 @@ from flathunter.default_processors import LambdaProcessor
 from flathunter.default_processors import CrawlExposeDetails
 from flathunter.sender_mattermost import SenderMattermost
 from flathunter.sender_telegram import SenderTelegram
+from flathunter.sender_matrix import SenderMatrix
 from flathunter.gmaps_duration_processor import GMapsDurationProcessor
 from flathunter.idmaintainer import SaveAllExposesProcessor
 
@@ -25,6 +26,9 @@ class ProcessorChainBuilder:
         if 'mattermost' in notifiers:
             """Add processor that sends Mattermost messages for exposes"""
             self.processors.append(SenderMattermost(self.config))
+        if 'matrix' in notifiers:
+            """Add processor that sends Matrix messages for exposes"""
+            self.processors.append(SenderMatrix(self.config))
         return self
 
     def resolve_addresses(self):
