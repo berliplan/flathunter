@@ -25,7 +25,7 @@ class CrawlImmobilienscout(Crawler):
         self.driver = None
         self.checkbox = None
         self.afterlogin_string = None
-
+        self.recommendations = set()
         if config.captcha_enabled():
             captcha_config = config.get('captcha')
             self.driver_executable_path = captcha_config.get('driver_path', '')
@@ -57,7 +57,7 @@ class CrawlImmobilienscout(Crawler):
         # load first page to get number of entries
         page_no = 1
         soup = self.get_page(search_url, self.driver, page_no)
-
+        self.recommendations = self.get_recommendation(soup)
         # If we are using Selenium, just parse the results from the JSON in the page response
         if self.driver is not None:
             return self.get_entries_from_javascript()
@@ -111,8 +111,13 @@ class CrawlImmobilienscout(Crawler):
             'crawler': self.get_name(),
             'price': str(entry["price"]["value"]),
             'size': str(entry["livingSpace"]),
-            'rooms': str(entry["numberOfRooms"])
+            'rooms': str(entry["numberOfRooms"]),
+            'recommendation': True if int(entry["@id"]) in self.recommendations else False
         }
+
+    def get_recommendation(self, soup):
+        recommendations = soup.find_all('ul', {'class': 'result-list recommendation-list'})
+        return set([int(i.get('data-go-to-expose-id')) for i in recommendations[0].find_all('a') if i.get('data-go-to-expose-id') != None])
 
     def get_page(self, search_url, driver=None, page_no=None):
         """Applies a page number to a formatted search URL and fetches the exposes at that page"""

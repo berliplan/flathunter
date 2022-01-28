@@ -33,7 +33,7 @@ class AlreadySeenFilter:
 
     def is_interesting(self, expose):
         """Returns true if an expose should be kept in the pipeline"""
-        if not self.id_watch.is_processed(expose['id']):
+        if not self.id_watch.is_processed(expose['id']) and not expose['recommendation']:
             self.id_watch.mark_processed(expose['id'])
             return True
         return False
