@@ -33,7 +33,7 @@ With Flathunter, instead of visiting the same pages on the same four sites every
 
 ## Install
 
-Flathunter is a Python (v3.6+) project - you will need Python3 installed to run the code. We recommend using [pipenv](https://pipenv-fork.readthedocs.io/en/latest/) to setup and configure your project. Install `pipenv` according to the instructions on the `pipenv` site, then run:
+Flathunter is a Python (v3.7+) project - you will need Python3 installed to run the code. We recommend using [pipenv](https://pipenv-fork.readthedocs.io/en/latest/) to setup and configure your project. Install `pipenv` according to the instructions on the `pipenv` site, then run:
 
 ```sh
 $ pipenv install
@@ -180,6 +180,9 @@ optional arguments:
   --config CONFIG, -c CONFIG
                         Config file to use. If not set, try to use
                         '~git-clone-dir/config.yaml'
+  --heartbeat INTERVAL, -hb INTERVAL
+			Set the interval time to receive heartbeat messages to check that the bot is
+                        alive. Accepted strings are "hour", "day", "week". Defaults to None.
 ```
 
 ### Web Interface

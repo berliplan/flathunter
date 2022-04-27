@@ -1,16 +1,18 @@
 """Default Flathunter implementation for the command line"""
 import logging
+import traceback
 from itertools import chain
 
 from flathunter.config import Config
 from flathunter.filter import Filter
 from flathunter.processor import ProcessorChain
+from flathunter.captcha.captcha_solver import CaptchaUnsolvableError
 
 class Hunter:
     """Hunter class - basic methods for crawling and processing / filtering exposes"""
     __log__ = logging.getLogger('flathunt')
 
-    def __init__(self, config, id_watch):
+    def __init__(self, config: Config, id_watch):
         self.config = config
         if not isinstance(self.config, Config):
             raise Exception("Invalid config for hunter - should be a 'Config' object")
@@ -18,7 +20,17 @@ class Hunter:
 
     def crawl_for_exposes(self, max_pages=None):
         """Trigger a new crawl of the configured URLs"""
-        return chain(*[searcher.crawl(url, max_pages)
+        def try_crawl(searcher, url, max_pages):
+            try:
+                return searcher.crawl(url, max_pages)
+            except CaptchaUnsolvableError:
+                self.__log__.info("Error while scraping url %s: the captcha was unsolvable", url)
+                return []
+            except Exception:
+                self.__log__.info("Error while scraping url %s:\n%s", url, traceback.format_exc())
+                return []
+
+        return chain(*[try_crawl(searcher,url, max_pages)
                        for searcher in self.config.searchers()
                        for url in self.config.get('urls', list())])
 
